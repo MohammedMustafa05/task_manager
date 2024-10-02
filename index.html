@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Task List</h1>
+
+        <form method="POST">
+            <input type="text" name="task" placeholder="Task" required>
+            <input type="date" name="deadline" required>
+            <select name="priority" required>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+            </select>
+            <button type="submit">Add Task</button>
+        </form>
+
+        <!-- Sort and Filter Options -->
+        <div class="task-controls">
+            <form method="GET" action="{{ url_for('index') }}">
+                <label for="sort_by">Sort by:</label>
+                <select name="sort_by" onchange="this.form.submit()">
+                    <option value="deadline" {% if sort_by == 'deadline' %}selected{% endif %}>Deadline</option>
+                    <option value="priority" {% if sort_by == 'priority' %}selected{% endif %}>Priority</option>
+                </select>
+
+                <label for="filter_by">Filter by:</label>
+                <select name="filter_by" onchange="this.form.submit()">
+                    <option value="all" {% if filter_by == 'all' %}selected{% endif %}>All</option>
+                    <option value="completed" {% if filter_by == 'completed' %}selected{% endif %}>Completed</option>
+                    <option value="not_completed" {% if filter_by == 'not_completed' %}selected{% endif %}>Not Completed</option>
+                    <option value="high" {% if filter_by == 'high' %}selected{% endif %}>High Priority</option>
+                    <option value="medium" {% if filter_by == 'medium' %}selected{% endif %}>Medium Priority</option>
+                    <option value="low" {% if filter_by == 'low' %}selected{% endif %}>Low Priority</option>
+                </select>
+            </form>
+        </div>
+
+        <ul>
+            {% for task in tasks %}
+                <li class="{% if task.completed %}task-completed{% endif %}">
+                    <strong>{{ task.task }}</strong> 
+                    (Deadline: {{ task.deadline }})
+                    <span class="{{ task.priority }}">{{ task.priority|capitalize }} Priority</span>
+                    {% if not task.completed %}
+                        <a href="{{ url_for('complete_task', task_id=task.id) }}">Complete</a> |
+                    {% else %}
+                        Completed |
+                    {% endif %}
+                    <a href="{{ url_for('delete_task', task_id=task.id) }}">Delete</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>
